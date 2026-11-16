@@ -1,0 +1,12 @@
+__pycache__/
+*.py[cod]
+*$py.class
+*.csv
+map_data_uri.txt
+test_*.py
+check_*.py
+crop_*.py
+build_*_map.py
+verify_coords.py
+.vscode/
+.idea/
