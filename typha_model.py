@@ -128,11 +128,23 @@ def simulate_typha_dispersal(
         p_cur = precips[i] if precips[i] is not None else 0.0
         u_cur = winds[i] if winds[i] is not None else 0.0
 
-        # А. Инерция влажности тканей пистиллодиев
+        # А. Асимметричная инерция увлажнения и высыхания пистиллодиев
+        rh_prev = rh_tissue
         if p_cur > 0.1:
             rh_tissue = 100.0
+        elif rh_cur >= rh_tissue:
+            # Быстрое набухание пистиллодиев при тумане/росе (tau_wet = 0.4 ч)
+            tau_wet = 0.4
+            rh_tissue += min(1.0, 1.0 / tau_wet) * (rh_cur - rh_tissue)
         else:
-            rh_tissue += (1.0 / tau) * (rh_cur - rh_tissue)
+            # Скорость высыхания зависит от температуры и ветра
+            t_clamped = max(-15.0, min(30.0, t_cur))
+            f_temp = 0.6 + 0.8 * ((t_clamped + 15.0) / 45.0)
+            f_wind = 1.0 + 0.15 * min(10.0, u_cur)
+            tau_dry = 3.5 / (f_temp * f_wind)
+            rh_tissue += min(1.0, 1.0 / tau_dry) * (rh_cur - rh_tissue)
+
+        drying_rate = max(0.0, rh_prev - rh_tissue)
 
         # Б. Накопление структурного выветривания
         freeze_thaw = 0.0
@@ -159,9 +171,10 @@ def simulate_typha_dispersal(
         else:
             dS = 0.0
 
-        # Д. Визуальное распушение соцветий (только при H > 0)
+        # Д. Визуальное распушение соцветий (только при H > 0, с учётом градиента сушки)
         if H > 0.0 and F > 0.0:
-            dF = k_fluff * (0.30 + 0.70 * W) * H * F
+            dry_boost = 1.0 + 0.08 * drying_rate
+            dF = k_fluff * (0.30 + 0.70 * W) * H * dry_boost * F
             dF = min(F, dF)
             F -= dF
         else:

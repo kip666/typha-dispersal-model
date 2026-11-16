@@ -24,14 +24,23 @@ This project implements:
 ### Mathematical Formulation
 The model evaluates four key biophysical mechanisms on an hourly time step ($\Delta t = 1\text{ h}$):
 
-#### 1. Tissue Moisture Inertia ($\text{RH}_{\text{tissue}}$)
-Accounts for delayed drying of inner spike layers ($\tau \approx 1.5\text{ h}$). Under precipitation ($P(t) > 0.1\text{ mm}$), the spike seals immediately:
+#### 1. Dynamic Asymmetric Moisture Inertia ($\text{RH}_{\text{tissue}}$)
+Pistillodies swell rapidly during dew or rain ($\tau_{\text{wet}} \approx 0.4\text{ h}$), whereas core drying proceeds slower ($\tau_{\text{dry0}} \approx 3.5\text{ h}$ in still cold air) and accelerates under warmer temperatures and wind ventilation:
+
+$$
+\tau_{\text{dry}}(t) = \frac{3.5}{f_T(T) \cdot f_U(U)}
+$$
+
+where $f_T(T) = 0.6 + 0.8 \cdot \dfrac{\text{clamp}(T, -15, 30) + 15}{45}$ and $f_U(U) = 1.0 + 0.15 \cdot \min(10, U)$.
+
+Under rain ($P(t) > 0.1\text{ mm}$), the spike seals immediately:
 
 $$
 \text{RH}_{\text{tissue}}(t) = 
 \begin{cases} 
 100\%, & \text{if } P(t) > 0.1\text{ mm} \\ 
-\text{RH}_{\text{tissue}}(t-1) + \dfrac{\Delta t}{\tau} \left(\text{RH}(t) - \text{RH}_{\text{tissue}}(t-1)\right), & \text{if } P(t) \le 0.1\text{ mm} 
+\text{RH}_{\text{tissue}}(t-1) + \min\left(1, \dfrac{\Delta t}{\tau_{\text{wet}}}\right) \left(\text{RH}(t) - \text{RH}_{\text{tissue}}(t-1)\right), & \text{if } \text{RH}(t) \ge \text{RH}_{\text{tissue}}(t-1) \\ 
+\text{RH}_{\text{tissue}}(t-1) + \min\left(1, \dfrac{\Delta t}{\tau_{\text{dry}}(t)}\right) \left(\text{RH}(t) - \text{RH}_{\text{tissue}}(t-1)\right), & \text{if } \text{RH}(t) < \text{RH}_{\text{tissue}}(t-1) 
 \end{cases}
 $$
 
@@ -58,7 +67,7 @@ $$
 where $\text{RH}_{\text{crit},0} = 52.0\%$ for *T. latifolia* and $48.0\%$ for *T. angustifolia*.
 
 #### 4. Seed Shedding ($\Delta S$) and Spike Opening ($\Delta F$)
-When the valve is open ($H > 0$), wind speeds $U(t)$ above the stalk sway threshold ($U_{\text{crit}} = 1.5\text{ m/s}$) strip achenes:
+When the valve is open ($H > 0$), wind speeds $U(t)$ above the stalk sway threshold ($U_{\text{crit}} = 1.5\text{ m/s}$) strip achenes. Rapid desiccation creates shear strain between outer and inner hairs, accelerating spike disintegration ($\text{dryBoost}$):
 
 $$
 A(t) = 1 - \exp\left(-k_u \cdot \max(0, U(t) - U_{\text{crit}})\right)
@@ -69,7 +78,11 @@ $$
 $$
 
 $$
-\Delta F(t) = -k_{\text{fluff}} \cdot (0.30 + 0.70 W(t)) \cdot H(t) \cdot F(t) \cdot \Delta t
+\text{dryBoost}(t) = 1 + 0.08 \cdot \max\left(0, \text{RH}_{\text{tissue}}(t-1) - \text{RH}_{\text{tissue}}(t)\right)
+$$
+
+$$
+\Delta F(t) = -k_{\text{fluff}} \cdot (0.30 + 0.70 W(t)) \cdot H(t) \cdot \text{dryBoost}(t) \cdot F(t) \cdot \Delta t
 $$
 
 where $k_u = 0.35$, $k_{\text{base}} = 0.015$ ($0.011$ for *angustifolia*), and $k_{\text{fluff}} = 0.012$ ($0.008$ for *angustifolia*).
@@ -123,14 +136,23 @@ python run_gui.py
 
 Модель выполняет пошаговый расчёт с часовым интервалом ($\Delta t = 1\text{ ч}$):
 
-#### 1. Инерция влажности тканей початка ($\text{RH}_{\text{tissue}}$)
-Отражает запаздывание высыхания внутренних слоёв початка ($\tau \approx 1{,}5\text{ ч}$). При осадках ($P(t) > 0{,}1\text{ мм}$) початок герметизируется мгновенно:
+#### 1. Динамическая асимметричная инерция влажности тканей ($\text{RH}_{\text{tissue}}$)
+Пистиллодии набухают при росе или осадках быстро ($\tau_{\text{wet}} \approx 0{,}4\text{ ч}$), тогда как высыхание плотной сердцевины идёт значительно медленнее ($\tau_{\text{dry0}} \approx 3{,}5\text{ ч}$ в штиль) и ускоряется при повышенной температуре и обдуве ветром:
+
+$$
+\tau_{\text{dry}}(t) = \frac{3{,}5}{f_T(T) \cdot f_U(U)}
+$$
+
+где $f_T(T) = 0{,}6 + 0{,}8 \cdot \dfrac{\text{clamp}(T, -15, 30) + 15}{45}$ и $f_U(U) = 1{,}0 + 0{,}15 \cdot \min(10, U)$.
+
+При дожде ($P(t) > 0{,}1\text{ мм}$) початок герметизируется мгновенно:
 
 $$
 \text{RH}_{\text{tissue}}(t) = 
 \begin{cases} 
 100\%, & \text{если } P(t) > 0{,}1\text{ мм} \\ 
-\text{RH}_{\text{tissue}}(t-1) + \dfrac{\Delta t}{\tau} \left(\text{RH}(t) - \text{RH}_{\text{tissue}}(t-1)\right), & \text{если } P(t) \le 0{,}1\text{ мм} 
+\text{RH}_{\text{tissue}}(t-1) + \min\left(1, \dfrac{\Delta t}{\tau_{\text{wet}}}\right) \left(\text{RH}(t) - \text{RH}_{\text{tissue}}(t-1)\right), & \text{если } \text{RH}(t) \ge \text{RH}_{\text{tissue}}(t-1) \\ 
+\text{RH}_{\text{tissue}}(t-1) + \min\left(1, \dfrac{\Delta t}{\tau_{\text{dry}}(t)}\right) \left(\text{RH}(t) - \text{RH}_{\text{tissue}}(t-1)\right), & \text{если } \text{RH}(t) < \text{RH}_{\text{tissue}}(t-1) 
 \end{cases}
 $$
 
@@ -157,7 +179,7 @@ $$
 где $\text{RH}_{\text{crit},0} = 52{,}0\%$ для *T. latifolia* и $48{,}0\%$ для *T. angustifolia*.
 
 #### 4. Унос семян ($\Delta S$) и распушение початков ($\Delta F$)
-При приоткрытом замке ($H > 0$) ветер со скоростью $U(t)$ выше порога раскачивания стебля ($U_{\text{crit}} = 1{,}5\text{ м/с}$) срывает плодики:
+При приоткрытом замке ($H > 0$) ветер со скоростью $U(t)$ выше порога раскачивания стебля ($U_{\text{crit}} = 1{,}5\text{ м/с}$) срывает плодики. Высокий градиент высыхания тканей создаёт механическое напряжение сдвига, ускоряя разрыв соцветия ($\text{dryBoost}$):
 
 $$
 A(t) = 1 - \exp\left(-k_u \cdot \max(0, U(t) - U_{\text{crit}})\right)
@@ -168,7 +190,11 @@ $$
 $$
 
 $$
-\Delta F(t) = -k_{\text{fluff}} \cdot (0{,}30 + 0{,}70 W(t)) \cdot H(t) \cdot F(t) \cdot \Delta t
+\text{dryBoost}(t) = 1 + 0{,}08 \cdot \max\left(0, \text{RH}_{\text{tissue}}(t-1) - \text{RH}_{\text{tissue}}(t)\right)
+$$
+
+$$
+\Delta F(t) = -k_{\text{fluff}} \cdot (0{,}30 + 0{,}70 W(t)) \cdot H(t) \cdot \text{dryBoost}(t) \cdot F(t) \cdot \Delta t
 $$
 
 где $k_u = 0{,}35$, $k_{\text{base}} = 0{,}015$ ($0{,}011$ для *angustifolia*), $k_{\text{fluff}} = 0{,}012$ ($0{,}008$ для *angustifolia*). Убыль нераспущённых початков $\Delta F(t)$ строго привязана к раскрытию замка ($H > 0$) и прекращается в периоды влажности.

@@ -372,13 +372,17 @@
 
           <!-- Section A -->
           <div class="p-4 rounded-xl bg-slate-800/60 border border-slate-700/80 space-y-2">
-            <h5 class="font-bold text-amber-300 text-xs md:text-sm">A. Tissue Moisture Inertia (RH<sub>tissue</sub>)</h5>
+            <h5 class="font-bold text-amber-300 text-xs md:text-sm">A. Dynamic Asymmetric Moisture Inertia (RH<sub>tissue</sub>)</h5>
             <p>
-              Because pistillodies swell within 15–30 minutes while internal layers desorb water over 1–2 hours, the tissue responds to ambient relative humidity RH(<em>t</em>) with a time constant τ ≈ 1.5 h. During rain (<em>P</em>(<em>t</em>) &gt; 0.1 mm), the spike is immediately hermetically sealed:
+              Pistillodies swell rapidly during dew or rain (τ<sub>wet</sub> ≈ 0.4 h), whereas core desiccation proceeds slower (τ<sub>dry0</sub> ≈ 3.5 h in still cold air) and accelerates under warmer temperatures and wind ventilation:
             </p>
             <div class="p-2.5 bg-slate-950 rounded-lg font-mono text-xs text-amber-200 overflow-x-auto">
+              f<sub>T</sub>(T) = 0.6 + 0.8 · ((clamp(T, -15, 30) + 15) / 45)<br>
+              f<sub>U</sub>(U) = 1.0 + 0.15 · min(10, U)<br>
+              τ<sub>dry</sub>(t) = 3.5 / (f<sub>T</sub>(T) · f<sub>U</sub>(U))<br>
               RH<sub>tissue</sub>(t) = 100%, &nbsp;&nbsp;if P(t) &gt; 0.1 mm<br>
-              RH<sub>tissue</sub>(t) = RH<sub>tissue</sub>(t-1) + (Δt / τ) · (RH(t) - RH<sub>tissue</sub>(t-1)), &nbsp;&nbsp;if P(t) ≤ 0.1 mm
+              RH<sub>tissue</sub>(t) = RH<sub>tissue</sub>(t-1) + min(1, Δt / τ<sub>wet</sub>) · (RH(t) - RH<sub>tissue</sub>(t-1)), &nbsp;&nbsp;if RH(t) ≥ RH<sub>tissue</sub>(t-1)<br>
+              RH<sub>tissue</sub>(t) = RH<sub>tissue</sub>(t-1) + min(1, Δt / τ<sub>dry</sub>) · (RH(t) - RH<sub>tissue</sub>(t-1)), &nbsp;&nbsp;if RH(t) &lt; RH<sub>tissue</sub>(t-1)
             </div>
           </div>
 
@@ -412,12 +416,13 @@
           <div class="p-4 rounded-xl bg-slate-800/60 border border-slate-700/80 space-y-2">
             <h5 class="font-bold text-amber-300 text-xs md:text-sm">D. Aerodynamic Detachment, Seed Loss (ΔS) and Spike Fluffing (ΔF)</h5>
             <p>
-              When the valve is open (<em>H</em>(<em>t</em>) &gt; 0), wind with speed <em>U</em>(<em>t</em>) exceeding the stalk sway threshold (<em>U</em><sub>crit</sub> = 1.5 m/s) strips achenes:
+              When the valve is open (<em>H</em>(<em>t</em>) &gt; 0), wind with speed <em>U</em>(<em>t</em>) exceeding the stalk sway threshold (<em>U</em><sub>crit</sub> = 1.5 m/s) strips achenes. Rapid desiccation creates shear strain between outer and inner hairs, accelerating spike disintegration (<em>dryBoost</em>):
             </p>
             <div class="p-2.5 bg-slate-950 rounded-lg font-mono text-xs text-blue-200 overflow-x-auto">
               A(t) = 1 - exp(-k<sub>u</sub> · max(0, U(t) - U<sub>crit</sub>))<br>
               ΔS(t) = -k<sub>base</sub> · (0.15 + 0.85 · W(t)) · H(t) · A(t) · S(t) · Δt<br>
-              ΔF(t) = -k<sub>fluff</sub> · (0.30 + 0.70 · W(t)) · H(t) · F(t) · Δt
+              dryBoost(t) = 1 + 0.08 · max(0, RH<sub>tissue</sub>(t-1) - RH<sub>tissue</sub>(t))<br>
+              ΔF(t) = -k<sub>fluff</sub> · (0.30 + 0.70 · W(t)) · H(t) · dryBoost(t) · F(t) · Δt
             </div>
             <p class="text-xs text-slate-400">
               where <em>k</em><sub>u</sub> = 0.35, <em>k</em><sub>base</sub> = 0.015 (0.011 for <em>angustifolia</em>), <em>k</em><sub>fluff</sub> = 0.012 (0.008 for <em>angustifolia</em>). Unopened spike loss Δ<em>F</em>(<em>t</em>) is strictly gated by valve opening (<em>H</em> &gt; 0) and ceases under humid conditions.
@@ -455,13 +460,17 @@
 
           <!-- Section A -->
           <div class="p-4 rounded-xl bg-slate-800/60 border border-slate-700/80 space-y-2">
-            <h5 class="font-bold text-amber-300 text-xs md:text-sm">А. Инерция влажности тканей початка (RH<sub>tissue</sub>)</h5>
+            <h5 class="font-bold text-amber-300 text-xs md:text-sm">А. Динамическая асимметричная инерция влажности тканей (RH<sub>tissue</sub>)</h5>
             <p>
-              Поскольку пистиллодии набухают за 15–30 минут, а внутренние слои высыхают за 1–2 часа, ткань реагирует на влажность воздуха RH(<em>t</em>) с постоянной времени τ ≈ 1,5 ч. При дожде (<em>P</em>(<em>t</em>) &gt; 0,1 мм) початок мгновенно герметизируется:
+              Пистиллодии набухают при росе или дожде очень быстро (τ<sub>wet</sub> ≈ 0,4 ч), в то время как отдача влаги плотной сердцевиной идёт значительно медленнее (τ<sub>dry0</sub> ≈ 3,5 ч в штиль на холоде) и ускоряется при повышенной температуре и ветре:
             </p>
             <div class="p-2.5 bg-slate-950 rounded-lg font-mono text-xs text-amber-200 overflow-x-auto">
+              f<sub>T</sub>(T) = 0.6 + 0.8 · ((clamp(T, -15, 30) + 15) / 45)<br>
+              f<sub>U</sub>(U) = 1.0 + 0.15 · min(10, U)<br>
+              τ<sub>dry</sub>(t) = 3.5 / (f<sub>T</sub>(T) · f<sub>U</sub>(U))<br>
               RH<sub>tissue</sub>(t) = 100%, &nbsp;&nbsp;если P(t) &gt; 0.1 мм<br>
-              RH<sub>tissue</sub>(t) = RH<sub>tissue</sub>(t-1) + (Δt / τ) · (RH(t) - RH<sub>tissue</sub>(t-1)), &nbsp;&nbsp;если P(t) ≤ 0.1 мм
+              RH<sub>tissue</sub>(t) = RH<sub>tissue</sub>(t-1) + min(1, Δt / τ<sub>wet</sub>) · (RH(t) - RH<sub>tissue</sub>(t-1)), &nbsp;&nbsp;если RH(t) ≥ RH<sub>tissue</sub>(t-1)<br>
+              RH<sub>tissue</sub>(t) = RH<sub>tissue</sub>(t-1) + min(1, Δt / τ<sub>dry</sub>) · (RH(t) - RH<sub>tissue</sub>(t-1)), &nbsp;&nbsp;если RH(t) &lt; RH<sub>tissue</sub>(t-1)
             </div>
           </div>
 
@@ -495,12 +504,13 @@
           <div class="p-4 rounded-xl bg-slate-800/60 border border-slate-700/80 space-y-2">
             <h5 class="font-bold text-amber-300 text-xs md:text-sm">Г. Ветровой срыв, убыль семян (ΔS) и распушение початков (ΔF)</h5>
             <p>
-              Если початок приоткрыт (<em>H</em>(<em>t</em>) &gt; 0), ветер со скоростью <em>U</em>(<em>t</em>) выше порога раскачивания стебля (<em>U</em><sub>crit</sub> = 1,5 м/с) уносит пушинки:
+              Если початок приоткрыт (<em>H</em>(<em>t</em>) &gt; 0), ветер со скоростью <em>U</em>(<em>t</em>) выше порога раскачивания стебля (<em>U</em><sub>crit</sub> = 1,5 м/с) уносит пушинки. Резкий градиент высыхания наружных волосков создаёт механическое напряжение сдвига, ускоряя раскрытие початка (<em>dryBoost</em>):
             </p>
             <div class="p-2.5 bg-slate-950 rounded-lg font-mono text-xs text-blue-200 overflow-x-auto">
               A(t) = 1 - exp(-k<sub>u</sub> · max(0, U(t) - U<sub>crit</sub>))<br>
               ΔS(t) = -k<sub>base</sub> · (0.15 + 0.85 · W(t)) · H(t) · A(t) · S(t) · Δt<br>
-              ΔF(t) = -k<sub>fluff</sub> · (0.30 + 0.70 · W(t)) · H(t) · F(t) · Δt
+              dryBoost(t) = 1 + 0.08 · max(0, RH<sub>tissue</sub>(t-1) - RH<sub>tissue</sub>(t))<br>
+              ΔF(t) = -k<sub>fluff</sub> · (0.30 + 0.70 · W(t)) · H(t) · dryBoost(t) · F(t) · Δt
             </div>
             <p class="text-xs text-slate-400">
               где <em>k</em><sub>u</sub> = 0,35, <em>k</em><sub>base</sub> = 0,015 (0,011 для <em>angustifolia</em>), <em>k</em><sub>fluff</sub> = 0,012 (0,008 для <em>angustifolia</em>). Убыль нераспущённых початков Δ<em>F</em>(<em>t</em>) строго привязана к открытию замка (<em>H</em> &gt; 0) и не происходит при сырости.
@@ -1082,11 +1092,24 @@
         const pCur = precips[i] !== null ? precips[i] : 0.0;
         const uCur = winds[i] !== null ? winds[i] : 0.0;
 
+        // А. Асимметричная инерция увлажнения и высыхания пистиллодиев
+        const rhPrev = rhTissue;
         if (pCur > 0.1) {
           rhTissue = 100.0;
+        } else if (rhCur >= rhTissue) {
+          // Набухание пистиллодиев при росе/тумане (tauWet = 0.4 ч)
+          const tauWet = 0.4;
+          rhTissue += Math.min(1.0, 1.0 / tauWet) * (rhCur - rhTissue);
         } else {
-          rhTissue += (1.0 / tau) * (rhCur - rhTissue);
+          // Скорость высыхания зависит от температуры и ветра
+          const tClamped = Math.max(-15.0, Math.min(30.0, tCur));
+          const fTemp = 0.6 + 0.8 * ((tClamped + 15.0) / 45.0);
+          const fWind = 1.0 + 0.15 * Math.min(10.0, uCur);
+          const tauDry = 3.5 / (fTemp * fWind);
+          rhTissue += Math.min(1.0, 1.0 / tauDry) * (rhCur - rhTissue);
         }
+
+        const dryingRate = Math.max(0.0, rhPrev - rhTissue);
 
         let freezeThaw = 0.0;
         if (prevTemp !== null) {
@@ -1112,9 +1135,11 @@
           S -= dS;
         }
 
+        // Доля нераспущённых початков F убывает при H > 0, ускоряясь при высокой скорости сушки
         let dF = 0.0;
         if (H > 0.0 && F > 0.0) {
-          dF = kFluff * (0.30 + 0.70 * W) * H * F;
+          const dryBoost = 1.0 + 0.08 * dryingRate;
+          dF = kFluff * (0.30 + 0.70 * W) * H * dryBoost * F;
           dF = Math.min(F, dF);
           F -= dF;
         }
