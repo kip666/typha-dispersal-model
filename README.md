@@ -48,14 +48,14 @@ where $\mathbb{I}$ is the $0^\circ\text{C}$ crossing indicator ($w_{\text{ft}} \
 The critical opening threshold shifts upward as the spike weathers — from dense autumn spikes up to loose spring spikes:
 
 $$
-\text{RH}_{\text{crit}}(t) = \text{RH}_{\text{crit\_base}} + 22.0 \cdot W(t)
+\text{RH}_{\text{crit}}(t) = \text{RH}_{\text{crit},0} + 22.0 \cdot W(t)
 $$
 
 $$
 H(t) = \max\left(0, \frac{\text{RH}_{\text{crit}}(t) - \text{RH}_{\text{tissue}}(t)}{\text{RH}_{\text{crit}}(t) - 20}\right)
 $$
 
-where $\text{RH}_{\text{crit\_base}} = 52.0\%$ for *T. latifolia* and $48.0\%$ for *T. angustifolia*.
+where $\text{RH}_{\text{crit},0} = 52.0\%$ for *T. latifolia* and $48.0\%$ for *T. angustifolia*.
 
 #### 4. Seed Shedding ($\Delta S$) and Spike Opening ($\Delta F$)
 When the valve is open ($H > 0$), wind speeds $U(t)$ above the stalk sway threshold ($U_{\text{crit}} = 1.5\text{ m/s}$) strip achenes:
@@ -147,14 +147,14 @@ $$
 Критическая влажность вскрытия линейно возрастает по мере выветривания:
 
 $$
-\text{RH}_{\text{crit}}(t) = \text{RH}_{\text{crit\_base}} + 22{,}0 \cdot W(t)
+\text{RH}_{\text{crit}}(t) = \text{RH}_{\text{crit},0} + 22{,}0 \cdot W(t)
 $$
 
 $$
 H(t) = \max\left(0, \frac{\text{RH}_{\text{crit}}(t) - \text{RH}_{\text{tissue}}(t)}{\text{RH}_{\text{crit}}(t) - 20}\right)
 $$
 
-где $\text{RH}_{\text{crit\_base}} = 52{,}0\%$ для *T. latifolia* и $48{,}0\%$ для *T. angustifolia*.
+где $\text{RH}_{\text{crit},0} = 52{,}0\%$ для *T. latifolia* и $48{,}0\%$ для *T. angustifolia*.
 
 #### 4. Унос семян ($\Delta S$) и распушение початков ($\Delta F$)
 При приоткрытом замке ($H > 0$) ветер со скоростью $U(t)$ выше порога раскачивания стебля ($U_{\text{crit}} = 1{,}5\text{ м/с}$) срывает плодики:
