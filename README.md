@@ -53,8 +53,9 @@ $$
 
 where $\mathbb{I}$ is the $0^\circ\text{C}$ crossing indicator ($w_{\text{ft}} \approx 0.015$ per cycle), and $w_{\text{age}} \approx 1.2 \times 10^{-4}\text{ h}^{-1}$ represents slow background aging.
 
-#### 3. Hygroscopic Valve State ($H \in [0, 1]$)
-The critical opening threshold shifts upward as the spike weathers — from dense autumn spikes up to loose spring spikes:
+#### 3. Hygroscopic Valves ($H$ and $H_{\text{fluff}}$)
+Seed release ($H$) and outer spike fluffing ($H_{\text{fluff}}$) follow decoupled physical mechanisms:
+- Seed shedding requires pedicel detachment from the axis as winter weathering progresses:
 
 $$
 \text{RH}_{\text{crit}}(t) = \text{RH}_{\text{crit},0} + 22.0 \cdot W(t)
@@ -66,8 +67,24 @@ $$
 
 where $\text{RH}_{\text{crit},0} = 52.0\%$ for *T. latifolia* and $48.0\%$ for *T. angustifolia*.
 
+- Inflorescence fluffing ($H_{\text{fluff}}$) exhibits a steep nonlinear threshold ("popcorn effect") when relative humidity drops below $50\%$:
+
+$$
+\text{RH}_{\text{fluff},\text{crit}}(t) = \text{RH}_{\text{fluff},0} + 14.0 \cdot W(t)
+$$
+
+$$
+x_{\text{dry}}(t) = \min\left(1.5, \frac{\max(0, \text{RH}_{\text{fluff},\text{crit}}(t) - \text{RH}_{\text{tissue}}(t))}{22.0}\right)
+$$
+
+$$
+H_{\text{fluff}}(t) = \left(x_{\text{dry}}(t)\right)^\gamma, \quad \gamma = 2.2
+$$
+
+where $\text{RH}_{\text{fluff},0} = 58.0\%$ for *T. latifolia* and $54.0\%$ for *T. angustifolia*.
+
 #### 4. Seed Shedding ($\Delta S$) and Spike Opening ($\Delta F$)
-When the valve is open ($H > 0$), wind speeds $U(t)$ above the stalk sway threshold ($U_{\text{crit}} = 1.5\text{ m/s}$) strip achenes. Rapid desiccation creates shear strain between outer and inner hairs, accelerating spike disintegration ($\text{dryBoost}$):
+When the valves open, aerodynamic wind forces strip seeds, while rapid desiccation triggers explosive outer spike opening:
 
 $$
 A(t) = 1 - \exp\left(-k_u \cdot \max(0, U(t) - U_{\text{crit}})\right)
@@ -82,10 +99,10 @@ $$
 $$
 
 $$
-\Delta F(t) = -k_{\text{fluff}} \cdot (0.30 + 0.70 W(t)) \cdot H(t) \cdot \text{dryBoost}(t) \cdot F(t) \cdot \Delta t
+\Delta F(t) = -k_{\text{fluff}} \cdot (0.75 + 0.25 W(t)) \cdot H_{\text{fluff}}(t) \cdot \text{dryBoost}(t) \cdot F(t) \cdot \Delta t
 $$
 
-where $k_u = 0.35$, $k_{\text{base}} = 0.015$ ($0.011$ for *angustifolia*), and $k_{\text{fluff}} = 0.012$ ($0.008$ for *angustifolia*).
+where $k_u = 0.35$, $k_{\text{base}} = 0.015$ ($0.011$ for *angustifolia*), and $k_{\text{fluff}} = 0.075$ ($0.045$ for *angustifolia*).
 
 ---
 
@@ -165,8 +182,9 @@ $$
 
 где $\mathbb{I}$ — индикатор перехода через $0^\circ\text{C}$ ($w_{\text{ft}} \approx 0{,}015$ за переход), а $w_{\text{age}} \approx 1{,}2 \times 10^{-4}\text{ ч}^{-1}$ — скорость фонового старения.
 
-#### 3. Гигроскопический замок пистиллодиев ($H \in [0, 1]$)
-Критическая влажность вскрытия линейно возрастает по мере выветривания:
+#### 3. Гигроскопические клапаны ($H$ и $H_{\text{fluff}}$)
+Сход семян ($H$) и визуальное распушение оболочки ($H_{\text{fluff}}$) разделены физически:
+- Осыпание плодиков с оси требует зимнего выветривания $W$:
 
 $$
 \text{RH}_{\text{crit}}(t) = \text{RH}_{\text{crit},0} + 22{,}0 \cdot W(t)
@@ -178,8 +196,24 @@ $$
 
 где $\text{RH}_{\text{crit},0} = 52{,}0\%$ для *T. latifolia* и $48{,}0\%$ для *T. angustifolia*.
 
+- Визуальное распушение ($H_{\text{fluff}}$) подчиняется нелинейному пороговому «эффекту попкорна» при падении влажности ниже $50\%$:
+
+$$
+\text{RH}_{\text{fluff},\text{crit}}(t) = \text{RH}_{\text{fluff},0} + 14{,}0 \cdot W(t)
+$$
+
+$$
+x_{\text{dry}}(t) = \min\left(1{,}5, \frac{\max(0, \text{RH}_{\text{fluff},\text{crit}}(t) - \text{RH}_{\text{tissue}}(t))}{22{,}0}\right)
+$$
+
+$$
+H_{\text{fluff}}(t) = \left(x_{\text{dry}}(t)\right)^\gamma, \quad \gamma = 2{,}2
+$$
+
+где $\text{RH}_{\text{fluff},0} = 58{,}0\%$ для *T. latifolia* и $54{,}0\%$ для *T. angustifolia*.
+
 #### 4. Унос семян ($\Delta S$) и распушение початков ($\Delta F$)
-При приоткрытом замке ($H > 0$) ветер со скоростью $U(t)$ выше порога раскачивания стебля ($U_{\text{crit}} = 1{,}5\text{ м/с}$) срывает плодики. Высокий градиент высыхания тканей создаёт механическое напряжение сдвига, ускоряя разрыв соцветия ($\text{dryBoost}$):
+При вскрытии замков ветер срывает плодики, а быстрое высыхание тканей вызывает взрывное раскрытие соцветия:
 
 $$
 A(t) = 1 - \exp\left(-k_u \cdot \max(0, U(t) - U_{\text{crit}})\right)
@@ -194,10 +228,10 @@ $$
 $$
 
 $$
-\Delta F(t) = -k_{\text{fluff}} \cdot (0{,}30 + 0{,}70 W(t)) \cdot H(t) \cdot \text{dryBoost}(t) \cdot F(t) \cdot \Delta t
+\Delta F(t) = -k_{\text{fluff}} \cdot (0{,}75 + 0{,}25 W(t)) \cdot H_{\text{fluff}}(t) \cdot \text{dryBoost}(t) \cdot F(t) \cdot \Delta t
 $$
 
-где $k_u = 0{,}35$, $k_{\text{base}} = 0{,}015$ ($0{,}011$ для *angustifolia*), $k_{\text{fluff}} = 0{,}012$ ($0{,}008$ для *angustifolia*). Убыль нераспущённых початков $\Delta F(t)$ строго привязана к раскрытию замка ($H > 0$) и прекращается в периоды влажности.
+где $k_u = 0{,}35$, $k_{\text{base}} = 0{,}015$ ($0{,}011$ для *angustifolia*), $k_{\text{fluff}} = 0{,}075$ ($0{,}045$ для *angustifolia*).
 
 ---
 

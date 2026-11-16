@@ -402,13 +402,16 @@
 
           <!-- Section C -->
           <div class="p-4 rounded-xl bg-slate-800/60 border border-slate-700/80 space-y-2">
-            <h5 class="font-bold text-amber-300 text-xs md:text-sm">C. Hygroscopic Pistillody Valve (H)</h5>
+            <h5 class="font-bold text-amber-300 text-xs md:text-sm">C. Hygroscopic Pistillody Valve (H) & Threshold Spike Opening (H<sub>fluff</sub>)</h5>
             <p>
-              The critical opening humidity increases linearly as the spike weathers — from RH<sub>crit</sub> = 52% (48% for <em>T. angustifolia</em>) in dense autumn spikes up to 74% in weathered spring spikes:
+              Critical opening thresholds shift upward as the spike weathers. Seed shedding (<em>H</em>) and outer spike cracking (<em>H</em><sub>fluff</sub>) follow separate physical pathways:
             </p>
             <div class="p-2.5 bg-slate-950 rounded-lg font-mono text-xs text-sky-200 overflow-x-auto">
-              RH<sub>crit</sub>(t) = 52 + 22 · W(t) &nbsp;&nbsp;[for T. latifolia; for T. angustifolia: 48 + 22 · W(t)]<br>
-              H(t) = max(0, &nbsp;(RH<sub>crit</sub>(t) - RH<sub>tissue</sub>(t)) / (RH<sub>crit</sub>(t) - 20))
+              RH<sub>crit</sub>(t) = 52 + 22 · W(t) &nbsp;&nbsp;[for seed shedding dS; 48 for angustifolia]<br>
+              H(t) = max(0, &nbsp;(RH<sub>crit</sub>(t) - RH<sub>tissue</sub>(t)) / (RH<sub>crit</sub>(t) - 20))<br>
+              RH<sub>fluff_crit</sub>(t) = 58 + 14 · W(t) &nbsp;&nbsp;[for spike fluffing dF; 54 for angustifolia]<br>
+              x<sub>dry</sub>(t) = min(1.5, &nbsp;max(0, RH<sub>fluff_crit</sub>(t) - RH<sub>tissue</sub>(t)) / 22)<br>
+              H<sub>fluff</sub>(t) = (x<sub>dry</sub>(t))<sup>2.2</sup> &nbsp;&nbsp;[nonlinear "popcorn" threshold]
             </div>
           </div>
 
@@ -416,16 +419,16 @@
           <div class="p-4 rounded-xl bg-slate-800/60 border border-slate-700/80 space-y-2">
             <h5 class="font-bold text-amber-300 text-xs md:text-sm">D. Aerodynamic Detachment, Seed Loss (ΔS) and Spike Fluffing (ΔF)</h5>
             <p>
-              When the valve is open (<em>H</em>(<em>t</em>) &gt; 0), wind with speed <em>U</em>(<em>t</em>) exceeding the stalk sway threshold (<em>U</em><sub>crit</sub> = 1.5 m/s) strips achenes. Rapid desiccation creates shear strain between outer and inner hairs, accelerating spike disintegration (<em>dryBoost</em>):
+              Seed shedding (Δ<em>S</em>) is governed by axis weathering <em>W</em> and wind above <em>U</em><sub>crit</sub> = 1.5 m/s. In contrast, visual fluffing (Δ<em>F</em>) activates on fresh autumn spikes and surges nonlinearly during anticyclonic dry spells:
             </p>
             <div class="p-2.5 bg-slate-950 rounded-lg font-mono text-xs text-blue-200 overflow-x-auto">
               A(t) = 1 - exp(-k<sub>u</sub> · max(0, U(t) - U<sub>crit</sub>))<br>
               ΔS(t) = -k<sub>base</sub> · (0.15 + 0.85 · W(t)) · H(t) · A(t) · S(t) · Δt<br>
               dryBoost(t) = 1 + 0.08 · max(0, RH<sub>tissue</sub>(t-1) - RH<sub>tissue</sub>(t))<br>
-              ΔF(t) = -k<sub>fluff</sub> · (0.30 + 0.70 · W(t)) · H(t) · dryBoost(t) · F(t) · Δt
+              ΔF(t) = -k<sub>fluff</sub> · (0.75 + 0.25 · W(t)) · H<sub>fluff</sub>(t) · dryBoost(t) · F(t) · Δt
             </div>
             <p class="text-xs text-slate-400">
-              where <em>k</em><sub>u</sub> = 0.35, <em>k</em><sub>base</sub> = 0.015 (0.011 for <em>angustifolia</em>), <em>k</em><sub>fluff</sub> = 0.012 (0.008 for <em>angustifolia</em>). Unopened spike loss Δ<em>F</em>(<em>t</em>) is strictly gated by valve opening (<em>H</em> &gt; 0) and ceases under humid conditions.
+              where <em>k</em><sub>u</sub> = 0.35, <em>k</em><sub>base</sub> = 0.015 (0.011 for <em>angustifolia</em>), <em>k</em><sub>fluff</sub> = 0.075 (0.045 for <em>angustifolia</em>). Unopened spike loss Δ<em>F</em>(<em>t</em>) is strictly gated by valve opening and ceases under humid conditions.
             </p>
           </div>
         </div>
@@ -490,13 +493,16 @@
 
           <!-- Section C -->
           <div class="p-4 rounded-xl bg-slate-800/60 border border-slate-700/80 space-y-2">
-            <h5 class="font-bold text-amber-300 text-xs md:text-sm">В. Гигроскопический замок пистиллодиев (H)</h5>
+            <h5 class="font-bold text-amber-300 text-xs md:text-sm">В. Гигроскопический замок (H) и пороговое вскрытие оболочки (H<sub>fluff</sub>)</h5>
             <p>
-              Критическая влажность вскрытия линейно растёт по мере выветривания початка — от RH<sub>crit</sub> = 52% (или 48% у <em>T. angustifolia</em>) у плотного осеннего початка до 74% у рыхлого весеннего:
+              Пороги вскрытия разделены по физическим механизмам: сход семян (<em>H</em>) сдерживается плотным креплением плодиков к оси, тогда как визуальное растрескивание оболочки (<em>H</em><sub>fluff</sub>) подчиняется нелинейному пороговому «эффекту попкорна»:
             </p>
             <div class="p-2.5 bg-slate-950 rounded-lg font-mono text-xs text-sky-200 overflow-x-auto">
-              RH<sub>crit</sub>(t) = 52 + 22 · W(t) &nbsp;&nbsp;[для T. latifolia; для T. angustifolia: 48 + 22 · W(t)]<br>
-              H(t) = max(0, &nbsp;(RH<sub>crit</sub>(t) - RH<sub>tissue</sub>(t)) / (RH<sub>crit</sub>(t) - 20))
+              RH<sub>crit</sub>(t) = 52 + 22 · W(t) &nbsp;&nbsp;[для схода семян dS; 48 для angustifolia]<br>
+              H(t) = max(0, &nbsp;(RH<sub>crit</sub>(t) - RH<sub>tissue</sub>(t)) / (RH<sub>crit</sub>(t) - 20))<br>
+              RH<sub>fluff_crit</sub>(t) = 58 + 14 · W(t) &nbsp;&nbsp;[для распушения початков dF; 54 для angustifolia]<br>
+              x<sub>dry</sub>(t) = min(1.5, &nbsp;max(0, RH<sub>fluff_crit</sub>(t) - RH<sub>tissue</sub>(t)) / 22)<br>
+              H<sub>fluff</sub>(t) = (x<sub>dry</sub>(t))<sup>2.2</sup> &nbsp;&nbsp;[нелинейный степенной порог]
             </div>
           </div>
 
@@ -504,16 +510,16 @@
           <div class="p-4 rounded-xl bg-slate-800/60 border border-slate-700/80 space-y-2">
             <h5 class="font-bold text-amber-300 text-xs md:text-sm">Г. Ветровой срыв, убыль семян (ΔS) и распушение початков (ΔF)</h5>
             <p>
-              Если початок приоткрыт (<em>H</em>(<em>t</em>) &gt; 0), ветер со скоростью <em>U</em>(<em>t</em>) выше порога раскачивания стебля (<em>U</em><sub>crit</sub> = 1,5 м/с) уносит пушинки. Резкий градиент высыхания наружных волосков создаёт механическое напряжение сдвига, ускоряя раскрытие початка (<em>dryBoost</em>):
+              Унос семян (Δ<em>S</em>) требует выветривания оси <em>W</em> и ветра выше <em>U</em><sub>crit</sub> = 1,5 м/с. В отличие от него, визуальное распушение (Δ<em>F</em>) активно уже на свежих осенних початках и лавинообразно нарастает в периоды сухих антициклонов:
             </p>
             <div class="p-2.5 bg-slate-950 rounded-lg font-mono text-xs text-blue-200 overflow-x-auto">
               A(t) = 1 - exp(-k<sub>u</sub> · max(0, U(t) - U<sub>crit</sub>))<br>
               ΔS(t) = -k<sub>base</sub> · (0.15 + 0.85 · W(t)) · H(t) · A(t) · S(t) · Δt<br>
               dryBoost(t) = 1 + 0.08 · max(0, RH<sub>tissue</sub>(t-1) - RH<sub>tissue</sub>(t))<br>
-              ΔF(t) = -k<sub>fluff</sub> · (0.30 + 0.70 · W(t)) · H(t) · dryBoost(t) · F(t) · Δt
+              ΔF(t) = -k<sub>fluff</sub> · (0.75 + 0.25 · W(t)) · H<sub>fluff</sub>(t) · dryBoost(t) · F(t) · Δt
             </div>
             <p class="text-xs text-slate-400">
-              где <em>k</em><sub>u</sub> = 0,35, <em>k</em><sub>base</sub> = 0,015 (0,011 для <em>angustifolia</em>), <em>k</em><sub>fluff</sub> = 0,012 (0,008 для <em>angustifolia</em>). Убыль нераспущённых початков Δ<em>F</em>(<em>t</em>) строго привязана к открытию замка (<em>H</em> &gt; 0) и не происходит при сырости.
+              где <em>k</em><sub>u</sub> = 0,35, <em>k</em><sub>base</sub> = 0,015 (0,011 для <em>angustifolia</em>), <em>k</em><sub>fluff</sub> = 0,075 (0,045 для <em>angustifolia</em>). Убыль нераспущённых початков Δ<em>F</em>(<em>t</em>) строго привязана к открытию замка и прекращается при сырости.
             </p>
           </div>
         </div>
@@ -1064,9 +1070,12 @@
       const precips = hourly.precipitation;
       const winds = hourly.wind_speed_10m;
 
-      const rhCritBase = species === 'angustifolia' ? 48.0 : 52.0;
+      // Калибровочные параметры вида
+      const rhCritBase = species === 'angustifolia' ? 48.0 : 52.0; // порог высыпания семян dS
+      const rhFluffBase = species === 'angustifolia' ? 54.0 : 58.0; // порог начала усыхания оболочки dF
       const kBase = species === 'angustifolia' ? 0.011 : 0.015;
-      const kFluff = species === 'angustifolia' ? 0.008 : 0.012;
+      const kFluff = species === 'angustifolia' ? 0.045 : 0.075;
+      const gammaFluff = 2.2; // нелинейность порогового вскрытия ("эффект попкорна")
 
       let S = 1.0;
       let F = 1.0;
@@ -1135,11 +1144,15 @@
           S -= dS;
         }
 
-        // Доля нераспущённых початков F убывает при H > 0, ускоряясь при высокой скорости сушки
+        // Г2. Нелинейное пороговое распушение початков dF ("эффект попкорна")
+        const rhFluffCrit = rhFluffBase + 14.0 * W;
         let dF = 0.0;
-        if (H > 0.0 && F > 0.0) {
+        if (rhTissue < rhFluffCrit && F > 0.0) {
+          const xDry = Math.min(1.5, (rhFluffCrit - rhTissue) / 22.0);
+          const H_fluff = Math.pow(xDry, gammaFluff);
           const dryBoost = 1.0 + 0.08 * dryingRate;
-          dF = kFluff * (0.30 + 0.70 * W) * H * dryBoost * F;
+
+          dF = kFluff * (0.75 + 0.25 * W) * H_fluff * dryBoost * F;
           dF = Math.min(F, dF);
           F -= dF;
         }

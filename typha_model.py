@@ -93,13 +93,17 @@ def simulate_typha_dispersal(
 
     # Калиброванные видовые параметры
     if species == "angustifolia":
-        rh_crit_base = 48.0
+        rh_crit_base = 48.0   # порог высыпания семян dS
+        rh_fluff_base = 54.0  # порог начала усыхания оболочки dF
         k_base = 0.011
-        k_fluff = 0.008
+        k_fluff = 0.045
     else:  # Typha latifolia
         rh_crit_base = 52.0
+        rh_fluff_base = 58.0
         k_base = 0.015
-        k_fluff = 0.012
+        k_fluff = 0.075
+
+    gamma_fluff = 2.2  # нелинейность порогового вскрытия ("эффект попкорна")
 
     # Начальные состояния
     S = 1.0          # Доля оставшихся семян [0..1]
@@ -171,10 +175,13 @@ def simulate_typha_dispersal(
         else:
             dS = 0.0
 
-        # Д. Визуальное распушение соцветий (только при H > 0, с учётом градиента сушки)
-        if H > 0.0 and F > 0.0:
+        # Д. Визуальное распушение соцветий (нелинейный пороговый "эффект попкорна")
+        rh_fluff_crit = rh_fluff_base + 14.0 * W
+        if rh_tissue < rh_fluff_crit and F > 0.0:
+            x_dry = min(1.5, (rh_fluff_crit - rh_tissue) / 22.0)
+            H_fluff = x_dry ** gamma_fluff
             dry_boost = 1.0 + 0.08 * drying_rate
-            dF = k_fluff * (0.30 + 0.70 * W) * H * dry_boost * F
+            dF = k_fluff * (0.75 + 0.25 * W) * H_fluff * dry_boost * F
             dF = min(F, dF)
             F -= dF
         else:
