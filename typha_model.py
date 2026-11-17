@@ -94,21 +94,21 @@ def simulate_typha_dispersal(
     # Калиброванные видовые параметры
     if species == "angustifolia":
         rh_crit_base = 48.0   # порог высыпания семян dS
-        rh_fluff_base = 54.0  # порог начала усыхания оболочки dF
+        rh_fluff_base = 51.0  # порог распушения оболочки dF
         k_base = 0.011
-        k_fluff = 0.045
+        k_fluff = 0.070
     else:  # Typha latifolia
         rh_crit_base = 52.0
-        rh_fluff_base = 58.0
+        rh_fluff_base = 55.0
         k_base = 0.015
-        k_fluff = 0.075
+        k_fluff = 0.110
 
-    gamma_fluff = 2.2  # нелинейность порогового вскрытия ("эффект попкорна")
+    gamma_fluff = 2.1  # нелинейность порогового вскрытия ("эффект попкорна")
 
     # Начальные состояния
     S = 1.0          # Доля оставшихся семян [0..1]
     F = 1.0          # Доля нераспущённых початков в популяции [0..1]
-    W = 0.10         # Индекс выветривания початка [0..1]
+    W = 0.05         # Индекс выветривания початка (в середине августа свежий початок)
     rh_tissue = 85.0 # Влажность тканей пистиллодиев (%)
 
     tau = 1.5        # Постоянная времени влагообмена (часы)
@@ -150,16 +150,21 @@ def simulate_typha_dispersal(
 
         drying_rate = max(0.0, rh_prev - rh_tissue)
 
-        # Б. Накопление структурного выветривания
+        # Б. Накопление структурного выветривания и осеннего старения тканей W
         freeze_thaw = 0.0
         if prev_temp is not None:
             if (t_cur < 0.0 <= prev_temp) or (t_cur >= 0.0 > prev_temp):
-                freeze_thaw = 0.015
+                freeze_thaw = 0.018
         prev_temp = t_cur
 
-        W = min(1.0, W + freeze_thaw + 0.00012)
+        age_rate = 0.00035 if t_cur < 11.0 else 0.00005
+        W = min(1.0, W + freeze_thaw + age_rate)
 
-        # В. Гигроскопический замок
+        # Сигмоидный фактор физиологического созревания/охрупчивания початка M(W) in [0..1]
+        # Блокирует преждевременное вскрытие в августе-сентябре (W < 0.15) и активируется в октябре (W > 0.22)
+        M = 1.0 / (1.0 + math.exp(-16.0 * (W - 0.22)))
+
+        # В. Гигроскопический замок для схода семян dS
         rh_crit = rh_crit_base + 22.0 * W
         if rh_tissue < rh_crit:
             H = (rh_crit - rh_tissue) / max(1.0, (rh_crit - 20.0))
@@ -175,13 +180,13 @@ def simulate_typha_dispersal(
         else:
             dS = 0.0
 
-        # Д. Визуальное распушение соцветий (нелинейный пороговый "эффект попкорна")
-        rh_fluff_crit = rh_fluff_base + 14.0 * W
+        # Д. Нелинейное пороговое распушение початков dF ("эффект попкорна") с фактором созревания M(W)
+        rh_fluff_crit = rh_fluff_base + 16.0 * W
         if rh_tissue < rh_fluff_crit and F > 0.0:
-            x_dry = min(1.5, (rh_fluff_crit - rh_tissue) / 22.0)
+            x_dry = min(1.5, (rh_fluff_crit - rh_tissue) / 20.0)
             H_fluff = x_dry ** gamma_fluff
             dry_boost = 1.0 + 0.08 * drying_rate
-            dF = k_fluff * (0.75 + 0.25 * W) * H_fluff * dry_boost * F
+            dF = k_fluff * M * H_fluff * dry_boost * F
             dF = min(F, dF)
             F -= dF
         else:

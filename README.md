@@ -44,14 +44,24 @@ $$
 \end{cases}
 $$
 
-#### 2. Structural Weathering Accumulation ($W \in [0, 1]$)
-Freeze-thaw temperature oscillations across $0^\circ\text{C}$ and background senescence weaken the mechanical cohesion of pedicel hairs:
+#### 2. Structural Weathering & Senescence Accumulation ($W \in [0, 1]$)
+Spikes begin the season with fresh intact tissues ($W(0) = 0.05$). Thermal oscillations across $0^\circ\text{C}$ (freeze-thaw fatigue) and temperature-dependent autumnal senescence weaken the mechanical cohesion of pedicels and pistillodia:
 
 $$
-\Delta W(t) = w_{\text{ft}} \cdot \mathbb{I}(T(t) \cdot T(t-1) < 0) + w_{\text{age}} \cdot \Delta t
+\Delta W(t) = w_{\text{ft}} \cdot \mathbb{I}(T(t) \cdot T(t-1) < 0) + w_{\text{age}}(T(t)) \cdot \Delta t
 $$
 
-where $\mathbb{I}$ is the $0^\circ\text{C}$ crossing indicator ($w_{\text{ft}} \approx 0.015$ per cycle), and $w_{\text{age}} \approx 1.2 \times 10^{-4}\text{ h}^{-1}$ represents slow background aging.
+where $\mathbb{I}$ is the $0^\circ\text{C}$ crossing indicator ($w_{\text{ft}} = 0.018$ per cycle), and $w_{\text{age}}$ accelerates 7-fold once autumn cooling drops below $11.0^\circ\text{C}$ (the biological cessation threshold for active plant growth):
+
+$$
+w_{\text{age}}(T) = \begin{cases} 3.5 \times 10^{-4}\text{ h}^{-1}, & T < 11.0^\circ\text{C} \\ 5.0 \times 10^{-5}\text{ h}^{-1}, & T \ge 11.0^\circ\text{C} \end{cases}
+$$
+
+A sigmoidal physiological maturation barrier $M(W)$ prevents fresh summer spikes from fluffing prematurely in hot, dry August afternoons and activates as autumnal senescence progresses:
+
+$$
+M(W) = \frac{1}{1 + \exp\big(-16.0 \cdot (W - 0.22)\big)}
+$$
 
 #### 3. Hygroscopic Valves ($H$ and $H_{\text{fluff}}$)
 Seed release ($H$) and outer spike fluffing ($H_{\text{fluff}}$) follow decoupled physical mechanisms:
@@ -70,18 +80,18 @@ where $\text{RH}_{\text{crit},0} = 52.0\%$ for *T. latifolia* and $48.0\%$ for *
 - Inflorescence fluffing ($H_{\text{fluff}}$) exhibits a steep nonlinear threshold ("popcorn effect") when relative humidity drops below $50\%$:
 
 $$
-\text{RH}_{\text{fluff},\text{crit}}(t) = \text{RH}_{\text{fluff},0} + 14.0 \cdot W(t)
+\text{RH}_{\text{fluff},\text{crit}}(t) = \text{RH}_{\text{fluff},0} + 16.0 \cdot W(t)
 $$
 
 $$
-x_{\text{dry}}(t) = \min\left(1.5, \frac{\max(0, \text{RH}_{\text{fluff},\text{crit}}(t) - \text{RH}_{\text{tissue}}(t))}{22.0}\right)
+x_{\text{dry}}(t) = \min\left(1.5, \frac{\max(0, \text{RH}_{\text{fluff},\text{crit}}(t) - \text{RH}_{\text{tissue}}(t))}{20.0}\right)
 $$
 
 $$
-H_{\text{fluff}}(t) = \left(x_{\text{dry}}(t)\right)^\gamma, \quad \gamma = 2.2
+H_{\text{fluff}}(t) = \left(x_{\text{dry}}(t)\right)^\gamma, \quad \gamma = 2.1
 $$
 
-where $\text{RH}_{\text{fluff},0} = 58.0\%$ for *T. latifolia* and $54.0\%$ for *T. angustifolia*.
+where $\text{RH}_{\text{fluff},0} = 55.0\%$ for *T. latifolia* and $51.0\%$ for *T. angustifolia*.
 
 #### 4. Seed Shedding ($\Delta S$) and Spike Opening ($\Delta F$)
 When the valves open, aerodynamic wind forces strip seeds, while rapid desiccation triggers explosive outer spike opening:
@@ -99,10 +109,10 @@ $$
 $$
 
 $$
-\Delta F(t) = -k_{\text{fluff}} \cdot (0.75 + 0.25 W(t)) \cdot H_{\text{fluff}}(t) \cdot \text{dryBoost}(t) \cdot F(t) \cdot \Delta t
+\Delta F(t) = -k_{\text{fluff}} \cdot M(W(t)) \cdot H_{\text{fluff}}(t) \cdot \text{dryBoost}(t) \cdot F(t) \cdot \Delta t
 $$
 
-where $k_u = 0.35$, $k_{\text{base}} = 0.015$ ($0.011$ for *angustifolia*), and $k_{\text{fluff}} = 0.075$ ($0.045$ for *angustifolia*).
+where $k_u = 0.35$, $k_{\text{base}} = 0.015$ ($0.011$ for *angustifolia*), and $k_{\text{fluff}} = 0.110$ ($0.070$ for *angustifolia*).
 
 ---
 
@@ -173,14 +183,24 @@ $$
 \end{cases}
 $$
 
-#### 2. Накопление структурного выветривания ($W \in [0, 1]$)
-Переходы температуры через $0^\circ\text{C}$ (циклы «замерзание — оттаивание») и фоновое старение разрушают механическое сцепление волосков плодиков с осью:
+#### 2. Накопление структурного выветривания и старения ($W \in [0, 1]$)
+В начале сезона (15 августа) ткани початка свежие ($W(0) = 0{,}05$). Температурные колебания около $0^\circ\text{C}$ (усталость от циклов «замерзание — оттаивание») и сезонное осеннее старение разрушают механическую связь плодиков и пистиллодиев с осью соцветия:
 
 $$
-\Delta W(t) = w_{\text{ft}} \cdot \mathbb{I}(T(t) \cdot T(t-1) < 0) + w_{\text{age}} \cdot \Delta t
+\Delta W(t) = w_{\text{ft}} \cdot \mathbb{I}(T(t) \cdot T(t-1) < 0) + w_{\text{age}}(T(t)) \cdot \Delta t
 $$
 
-где $\mathbb{I}$ — индикатор перехода через $0^\circ\text{C}$ ($w_{\text{ft}} \approx 0{,}015$ за переход), а $w_{\text{age}} \approx 1{,}2 \times 10^{-4}\text{ ч}^{-1}$ — скорость фонового старения.
+где $\mathbb{I}$ — индикатор перехода через $0^\circ\text{C}$ ($w_{\text{ft}} = 0{,}018$ за цикл), а скорость фонового старения $w_{\text{age}}$ увеличивается в 7 раз при осеннем охлаждении ниже $+11{,}0^\circ\text{C}$ (агрометеорологический порог прекращения активной вегетации):
+
+$$
+w_{\text{age}}(T) = \begin{cases} 3{,}5 \times 10^{-4}\text{ ч}^{-1}, & T < 11{,}0^\circ\text{C} \\ 5{,}0 \times 10^{-5}\text{ ч}^{-1}, & T \ge 11{,}0^\circ\text{C} \end{cases}
+$$
+
+Сигмоидный фактор физиологической зрелости $M(W)$ блокирует преждевременное раскрытие свежих початков при летней жаре и низкой влажности августа, активируясь по мере осеннего старения:
+
+$$
+M(W) = \frac{1}{1 + \exp\big(-16{,}0 \cdot (W - 0{,}22)\big)}
+$$
 
 #### 3. Гигроскопические клапаны ($H$ и $H_{\text{fluff}}$)
 Сход семян ($H$) и визуальное распушение оболочки ($H_{\text{fluff}}$) разделены физически:
@@ -199,18 +219,18 @@ $$
 - Визуальное распушение ($H_{\text{fluff}}$) подчиняется нелинейному пороговому «эффекту попкорна» при падении влажности ниже $50\%$:
 
 $$
-\text{RH}_{\text{fluff},\text{crit}}(t) = \text{RH}_{\text{fluff},0} + 14{,}0 \cdot W(t)
+\text{RH}_{\text{fluff},\text{crit}}(t) = \text{RH}_{\text{fluff},0} + 16{,}0 \cdot W(t)
 $$
 
 $$
-x_{\text{dry}}(t) = \min\left(1{,}5, \frac{\max(0, \text{RH}_{\text{fluff},\text{crit}}(t) - \text{RH}_{\text{tissue}}(t))}{22{,}0}\right)
+x_{\text{dry}}(t) = \min\left(1{,}5, \frac{\max(0, \text{RH}_{\text{fluff},\text{crit}}(t) - \text{RH}_{\text{tissue}}(t))}{20{,}0}\right)
 $$
 
 $$
-H_{\text{fluff}}(t) = \left(x_{\text{dry}}(t)\right)^\gamma, \quad \gamma = 2{,}2
+H_{\text{fluff}}(t) = \left(x_{\text{dry}}(t)\right)^\gamma, \quad \gamma = 2{,}1
 $$
 
-где $\text{RH}_{\text{fluff},0} = 58{,}0\%$ для *T. latifolia* и $54{,}0\%$ для *T. angustifolia*.
+где $\text{RH}_{\text{fluff},0} = 55{,}0\%$ для *T. latifolia* и $51{,}0\%$ для *T. angustifolia*.
 
 #### 4. Унос семян ($\Delta S$) и распушение початков ($\Delta F$)
 При вскрытии замков ветер срывает плодики, а быстрое высыхание тканей вызывает взрывное раскрытие соцветия:
@@ -228,10 +248,10 @@ $$
 $$
 
 $$
-\Delta F(t) = -k_{\text{fluff}} \cdot (0{,}75 + 0{,}25 W(t)) \cdot H_{\text{fluff}}(t) \cdot \text{dryBoost}(t) \cdot F(t) \cdot \Delta t
+\Delta F(t) = -k_{\text{fluff}} \cdot M(W(t)) \cdot H_{\text{fluff}}(t) \cdot \text{dryBoost}(t) \cdot F(t) \cdot \Delta t
 $$
 
-где $k_u = 0{,}35$, $k_{\text{base}} = 0{,}015$ ($0{,}011$ для *angustifolia*), $k_{\text{fluff}} = 0{,}075$ ($0{,}045$ для *angustifolia*).
+где $k_u = 0{,}35$, $k_{\text{base}} = 0{,}015$ ($0{,}011$ для *angustifolia*), $k_{\text{fluff}} = 0{,}110$ ($0{,}070$ для *angustifolia*).
 
 ---
 

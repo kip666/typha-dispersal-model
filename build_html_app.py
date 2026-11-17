@@ -368,7 +368,7 @@ html_content = f"""<!DOCTYPE html>
             <ul class="list-disc list-inside space-y-1 pl-2 text-slate-300">
               <li><span class="font-mono text-emerald-400 font-semibold">S(t) ∈ [0, 1]</span> — fraction of seeds retained on the spike axis (starts at <em>S</em>(0) = 1.0).</li>
               <li><span class="font-mono text-amber-300 font-semibold">F(t) ∈ [0, 1]</span> — fraction of intact (unopened) spikes in the population (starts at <em>F</em>(0) = 1.0).</li>
-              <li><span class="font-mono text-purple-400 font-semibold">W(t) ∈ [0, 1]</span> — structural weathering index of the spike (weakening of pedicel attachment; starts at <em>W</em>(0) = 0.10).</li>
+              <li><span class="font-mono text-purple-400 font-semibold">W(t) ∈ [0, 1]</span> — structural weathering index of the spike (weakening of pedicel attachment; starts at <em>W</em>(0) = 0.05 for fresh spikes).</li>
             </ul>
             <p>
               At each hourly step Δ<em>t</em> = 1 h, four processes are evaluated:
@@ -393,15 +393,17 @@ html_content = f"""<!DOCTYPE html>
 
           <!-- Section B -->
           <div class="p-4 rounded-xl bg-slate-800/60 border border-slate-700/80 space-y-2">
-            <h5 class="font-bold text-amber-300 text-xs md:text-sm">B. Weathering Accumulation (W)</h5>
+            <h5 class="font-bold text-amber-300 text-xs md:text-sm">B. Structural Weathering & Senescence Accumulation (W) and Maturation Gate M(W)</h5>
             <p>
-              Freeze-thaw temperature oscillations across 0 °C and prolonged subzero exposure shatter the mechanical cohesion of pedicel hairs:
+              Thermal oscillations across 0 °C (freeze-thaw fatigue) and temperature-dependent autumnal tissue senescence weaken the mechanical cohesion of pedicels and pistillodia:
             </p>
             <div class="p-2.5 bg-slate-950 rounded-lg font-mono text-xs text-purple-200 overflow-x-auto">
-              ΔW(t) = w<sub>ft</sub> · 𝕀(T(t) · T(t-1) &lt; 0) + w<sub>age</sub> · Δt
+              ΔW(t) = w<sub>ft</sub> · 𝕀(T(t) · T(t-1) &lt; 0) + w<sub>age</sub>(T(t)) · Δt<br>
+              w<sub>age</sub>(T) = 0.00035 h<sup>-1</sup> &nbsp;if T &lt; 11.0 °C (autumn cooling); &nbsp;0.00005 h<sup>-1</sup> &nbsp;if T ≥ 11.0 °C<br>
+              M(W) = 1 / (1 + exp(-16.0 · (W - 0.22))) &nbsp;&nbsp;[sigmoidal maturation / brittleness barrier]
             </div>
             <p class="text-xs text-slate-400">
-              where 𝕀 is the 0 °C zero-crossing indicator (<em>w</em><sub>ft</sub> ≈ 0.015 per cycle), and <em>w</em><sub>age</sub> ≈ 1.2 · 10<sup>-4</sup> h<sup>-1</sup> is slow background tissue aging.
+              where 𝕀 is the 0 °C zero-crossing indicator (<em>w</em><sub>ft</sub> = 0.018 per cycle). The sigmoidal gate <em>M</em>(<em>W</em>) suppresses premature fluffing in hot, dry August afternoons (<em>W</em> &lt; 0.15) and unlocks explosive opening in October as tissues undergo senescence (<em>W</em> &gt; 0.22).
             </p>
           </div>
 
@@ -414,9 +416,9 @@ html_content = f"""<!DOCTYPE html>
             <div class="p-2.5 bg-slate-950 rounded-lg font-mono text-xs text-sky-200 overflow-x-auto">
               RH<sub>crit</sub>(t) = 52 + 22 · W(t) &nbsp;&nbsp;[for seed shedding dS; 48 for angustifolia]<br>
               H(t) = max(0, &nbsp;(RH<sub>crit</sub>(t) - RH<sub>tissue</sub>(t)) / (RH<sub>crit</sub>(t) - 20))<br>
-              RH<sub>fluff_crit</sub>(t) = 58 + 14 · W(t) &nbsp;&nbsp;[for spike fluffing dF; 54 for angustifolia]<br>
-              x<sub>dry</sub>(t) = min(1.5, &nbsp;max(0, RH<sub>fluff_crit</sub>(t) - RH<sub>tissue</sub>(t)) / 22)<br>
-              H<sub>fluff</sub>(t) = (x<sub>dry</sub>(t))<sup>2.2</sup> &nbsp;&nbsp;[nonlinear "popcorn" threshold]
+              RH<sub>fluff_crit</sub>(t) = 55 + 16 · W(t) &nbsp;&nbsp;[for spike fluffing dF; 51 for angustifolia]<br>
+              x<sub>dry</sub>(t) = min(1.5, &nbsp;max(0, RH<sub>fluff_crit</sub>(t) - RH<sub>tissue</sub>(t)) / 20)<br>
+              H<sub>fluff</sub>(t) = (x<sub>dry</sub>(t))<sup>2.1</sup> &nbsp;&nbsp;[nonlinear "popcorn" threshold]
             </div>
           </div>
 
@@ -424,17 +426,28 @@ html_content = f"""<!DOCTYPE html>
           <div class="p-4 rounded-xl bg-slate-800/60 border border-slate-700/80 space-y-2">
             <h5 class="font-bold text-amber-300 text-xs md:text-sm">D. Aerodynamic Detachment, Seed Loss (ΔS) and Spike Fluffing (ΔF)</h5>
             <p>
-              Seed shedding (Δ<em>S</em>) is governed by axis weathering <em>W</em> and wind above <em>U</em><sub>crit</sub> = 1.5 m/s. In contrast, visual fluffing (Δ<em>F</em>) activates on fresh autumn spikes and surges nonlinearly during anticyclonic dry spells:
+              Seed shedding (Δ<em>S</em>) is governed by axis weathering <em>W</em> and wind above <em>U</em><sub>crit</sub> = 1.5 m/s. Outer spike fluffing (Δ<em>F</em>) is activated by autumnal senescence <em>M</em>(<em>W</em>) and surges nonlinearly during anticyclonic dry spells:
             </p>
             <div class="p-2.5 bg-slate-950 rounded-lg font-mono text-xs text-blue-200 overflow-x-auto">
               A(t) = 1 - exp(-k<sub>u</sub> · max(0, U(t) - U<sub>crit</sub>))<br>
               ΔS(t) = -k<sub>base</sub> · (0.15 + 0.85 · W(t)) · H(t) · A(t) · S(t) · Δt<br>
               dryBoost(t) = 1 + 0.08 · max(0, RH<sub>tissue</sub>(t-1) - RH<sub>tissue</sub>(t))<br>
-              ΔF(t) = -k<sub>fluff</sub> · (0.75 + 0.25 · W(t)) · H<sub>fluff</sub>(t) · dryBoost(t) · F(t) · Δt
+              ΔF(t) = -k<sub>fluff</sub> · M(W(t)) · H<sub>fluff</sub>(t) · dryBoost(t) · F(t) · Δt
             </div>
             <p class="text-xs text-slate-400">
-              where <em>k</em><sub>u</sub> = 0.35, <em>k</em><sub>base</sub> = 0.015 (0.011 for <em>angustifolia</em>), <em>k</em><sub>fluff</sub> = 0.075 (0.045 for <em>angustifolia</em>). Unopened spike loss Δ<em>F</em>(<em>t</em>) is strictly gated by valve opening and ceases under humid conditions.
+              where <em>k</em><sub>u</sub> = 0.35, <em>k</em><sub>base</sub> = 0.015 (0.011 for <em>angustifolia</em>), <em>k</em><sub>fluff</sub> = 0.110 (0.070 for <em>angustifolia</em>). Unopened spike loss Δ<em>F</em>(<em>t</em>) is strictly gated by valve opening and ceases under humid conditions.
             </p>
+          </div>
+
+          <!-- Scientific References -->
+          <div class="p-4 rounded-xl bg-slate-800/60 border border-slate-700/80 space-y-2">
+            <h5 class="font-bold text-amber-300 text-xs md:text-sm">2. Scientific References / Literature</h5>
+            <ol class="list-decimal list-inside space-y-1.5 pl-2 text-xs text-slate-300">
+              <li><strong class="text-white">Yeo, R. R. (1964)</strong>. <em>Life history of common cattail</em>. Weed Science, 12(4), 284–288.</li>
+              <li><strong class="text-white">Krattinger, K. (1975)</strong>. <em>Genetic mobility in Typha</em>. New Phytologist, 74(2), 333–340.</li>
+              <li><strong class="text-white">Lozada-Gobilard, S., Stang, M., & Tielbörger, K. (2021)</strong>. <em>Dispersal syndromes and the role of humidity in wind-dispersed plants: hygroscopic seed release</em>. Perspectives in Plant Ecology, Evolution and Systematics, 53, 125642.</li>
+              <li><strong class="text-white">Schwendener, S. (1896)</strong>. <em>Die Spaltöffnungen der Typha-Arten und die hygroskopischen Bewegungen der Pistillodien</em>. Sitzungsberichte der Königlich Preussischen Akademie der Wissenschaften zu Berlin.</li>
+            </ol>
           </div>
         </div>
 
@@ -459,7 +472,7 @@ html_content = f"""<!DOCTYPE html>
             <ul class="list-disc list-inside space-y-1 pl-2 text-slate-300">
               <li><span class="font-mono text-emerald-400 font-semibold">S(t) ∈ [0, 1]</span> — доля семян, оставшихся в початке (в начале сезона <em>S</em>(0) = 1,0).</li>
               <li><span class="font-mono text-amber-300 font-semibold">F(t) ∈ [0, 1]</span> — доля нераспущённых (целых) початков в популяции (в начале сезона <em>F</em>(0) = 1,0).</li>
-              <li><span class="font-mono text-purple-400 font-semibold">W(t) ∈ [0, 1]</span> — индекс структурного выветривания початка (ослабление связи плодиков с осью; стартует с <em>W</em>(0) = 0,10).</li>
+              <li><span class="font-mono text-purple-400 font-semibold">W(t) ∈ [0, 1]</span> — индекс структурного выветривания початка (ослабление связи плодиков с осью; стартует с <em>W</em>(0) = 0,05 для свежих початков).</li>
             </ul>
             <p>
               На каждом часовом шаге Δ<em>t</em> = 1 ч рассчитываются четыре процесса:
@@ -484,15 +497,17 @@ html_content = f"""<!DOCTYPE html>
 
           <!-- Section B -->
           <div class="p-4 rounded-xl bg-slate-800/60 border border-slate-700/80 space-y-2">
-            <h5 class="font-bold text-amber-300 text-xs md:text-sm">Б. Накопление выветривания (W)</h5>
+            <h5 class="font-bold text-amber-300 text-xs md:text-sm">Б. Накопление выветривания и старения (W) и сигмоидный барьер созревания M(W)</h5>
             <p>
-              Переходы температуры через 0 °C (циклы «замерзание — оттаивание») и пребывание на морозе разрушают механическое сцепление волосков:
+              Переходы температуры через 0 °C (циклы «замерзание — оттаивание») и сезонное осеннее старение разрушают механическую связь плодиков с осью:
             </p>
             <div class="p-2.5 bg-slate-950 rounded-lg font-mono text-xs text-purple-200 overflow-x-auto">
-              ΔW(t) = w<sub>ft</sub> · 𝕀(T(t) · T(t-1) &lt; 0) + w<sub>age</sub> · Δt
+              ΔW(t) = w<sub>ft</sub> · 𝕀(T(t) · T(t-1) &lt; 0) + w<sub>age</sub>(T(t)) · Δt<br>
+              w<sub>age</sub>(T) = 0.00035 ч<sup>-1</sup> &nbsp;если T &lt; 11.0 °C (осеннее похолодание); &nbsp;0.00005 ч<sup>-1</sup> &nbsp;если T ≥ 11.0 °C<br>
+              M(W) = 1 / (1 + exp(-16.0 · (W - 0.22))) &nbsp;&nbsp;[сигмоидный фактор физиологической зрелости / охрупчивания]
             </div>
             <p class="text-xs text-slate-400">
-              где 𝕀 — индикатор перехода через 0 °C (<em>w</em><sub>ft</sub> ≈ 0,015 за цикл), а <em>w</em><sub>age</sub> ≈ 1,2 · 10<sup>-4</sup> ч<sup>-1</sup> — медленное фоновое старение тканей.
+              где 𝕀 — индикатор перехода через 0 °C (<em>w</em><sub>ft</sub> = 0,018 за цикл). Сигмоида <em>M</em>(<em>W</em>) надёжно блокирует раскрытие початков при летней жаре и низкой влажности августа (<em>W</em> &lt; 0,15) и активируется по мере осеннего старения тканей (<em>W</em> &gt; 0,22).
             </p>
           </div>
 
@@ -505,9 +520,9 @@ html_content = f"""<!DOCTYPE html>
             <div class="p-2.5 bg-slate-950 rounded-lg font-mono text-xs text-sky-200 overflow-x-auto">
               RH<sub>crit</sub>(t) = 52 + 22 · W(t) &nbsp;&nbsp;[для схода семян dS; 48 для angustifolia]<br>
               H(t) = max(0, &nbsp;(RH<sub>crit</sub>(t) - RH<sub>tissue</sub>(t)) / (RH<sub>crit</sub>(t) - 20))<br>
-              RH<sub>fluff_crit</sub>(t) = 58 + 14 · W(t) &nbsp;&nbsp;[для распушения початков dF; 54 для angustifolia]<br>
-              x<sub>dry</sub>(t) = min(1.5, &nbsp;max(0, RH<sub>fluff_crit</sub>(t) - RH<sub>tissue</sub>(t)) / 22)<br>
-              H<sub>fluff</sub>(t) = (x<sub>dry</sub>(t))<sup>2.2</sup> &nbsp;&nbsp;[нелинейный степенной порог]
+              RH<sub>fluff_crit</sub>(t) = 55 + 16 · W(t) &nbsp;&nbsp;[для распушения початков dF; 51 для angustifolia]<br>
+              x<sub>dry</sub>(t) = min(1.5, &nbsp;max(0, RH<sub>fluff_crit</sub>(t) - RH<sub>tissue</sub>(t)) / 20)<br>
+              H<sub>fluff</sub>(t) = (x<sub>dry</sub>(t))<sup>2.1</sup> &nbsp;&nbsp;[нелинейный степенной порог]
             </div>
           </div>
 
@@ -515,18 +530,30 @@ html_content = f"""<!DOCTYPE html>
           <div class="p-4 rounded-xl bg-slate-800/60 border border-slate-700/80 space-y-2">
             <h5 class="font-bold text-amber-300 text-xs md:text-sm">Г. Ветровой срыв, убыль семян (ΔS) и распушение початков (ΔF)</h5>
             <p>
-              Унос семян (Δ<em>S</em>) требует выветривания оси <em>W</em> и ветра выше <em>U</em><sub>crit</sub> = 1,5 м/с. В отличие от него, визуальное распушение (Δ<em>F</em>) активно уже на свежих осенних початках и лавинообразно нарастает в периоды сухих антициклонов:
+              Унос семян (Δ<em>S</em>) требует выветривания оси <em>W</em> и ветра выше <em>U</em><sub>crit</sub> = 1,5 м/с. Визуальное распушение (Δ<em>F</em>) активируется осенним созреванием <em>M</em>(<em>W</em>) и лавинообразно нарастает в периоды сухих антициклонов:
             </p>
             <div class="p-2.5 bg-slate-950 rounded-lg font-mono text-xs text-blue-200 overflow-x-auto">
               A(t) = 1 - exp(-k<sub>u</sub> · max(0, U(t) - U<sub>crit</sub>))<br>
               ΔS(t) = -k<sub>base</sub> · (0.15 + 0.85 · W(t)) · H(t) · A(t) · S(t) · Δt<br>
               dryBoost(t) = 1 + 0.08 · max(0, RH<sub>tissue</sub>(t-1) - RH<sub>tissue</sub>(t))<br>
-              ΔF(t) = -k<sub>fluff</sub> · (0.75 + 0.25 · W(t)) · H<sub>fluff</sub>(t) · dryBoost(t) · F(t) · Δt
+              ΔF(t) = -k<sub>fluff</sub> · M(W(t)) · H<sub>fluff</sub>(t) · dryBoost(t) · F(t) · Δt
             </div>
             <p class="text-xs text-slate-400">
-              где <em>k</em><sub>u</sub> = 0,35, <em>k</em><sub>base</sub> = 0,015 (0,011 для <em>angustifolia</em>), <em>k</em><sub>fluff</sub> = 0,075 (0,045 для <em>angustifolia</em>). Убыль нераспущённых початков Δ<em>F</em>(<em>t</em>) строго привязана к открытию замка и прекращается при сырости.
+              где <em>k</em><sub>u</sub> = 0,35, <em>k</em><sub>base</sub> = 0,015 (0,011 для <em>angustifolia</em>), <em>k</em><sub>fluff</sub> = 0,110 (0,070 для <em>angustifolia</em>). Убыль нераспущённых початков Δ<em>F</em>(<em>t</em>) строго привязана к открытию замка и прекращается при сырости.
             </p>
           </div>
+
+          <!-- Научные публикации -->
+          <div class="p-4 rounded-xl bg-slate-800/60 border border-slate-700/80 space-y-2">
+            <h5 class="font-bold text-amber-300 text-xs md:text-sm">2. Научные публикации и литература</h5>
+            <ol class="list-decimal list-inside space-y-1.5 pl-2 text-xs text-slate-300">
+              <li><strong class="text-white">Yeo, R. R. (1964)</strong>. <em>Life history of common cattail</em>. Weed Science, 12(4), 284–288.</li>
+              <li><strong class="text-white">Krattinger, K. (1975)</strong>. <em>Genetic mobility in Typha</em>. New Phytologist, 74(2), 333–340.</li>
+              <li><strong class="text-white">Lozada-Gobilard, S., Stang, M., & Tielbörger, K. (2021)</strong>. <em>Dispersal syndromes and the role of humidity in wind-dispersed plants: hygroscopic seed release</em>. Perspectives in Plant Ecology, Evolution and Systematics, 53, 125642.</li>
+              <li><strong class="text-white">Schwendener, S. (1896)</strong>. <em>Die Spaltöffnungen der Typha-Arten und die hygroskopischen Bewegungen der Pistillodien</em>. Sitzungsberichte der Königlich Preussischen Akademie der Wissenschaften zu Berlin.</li>
+            </ol>
+          </div>
+        </div>
         </div>
       </details>
     </section>
@@ -1077,14 +1104,14 @@ html_content = f"""<!DOCTYPE html>
 
       // Калибровочные параметры вида
       const rhCritBase = species === 'angustifolia' ? 48.0 : 52.0; // порог высыпания семян dS
-      const rhFluffBase = species === 'angustifolia' ? 54.0 : 58.0; // порог начала усыхания оболочки dF
+      const rhFluffBase = species === 'angustifolia' ? 51.0 : 55.0; // порог распушения оболочки dF
       const kBase = species === 'angustifolia' ? 0.011 : 0.015;
-      const kFluff = species === 'angustifolia' ? 0.045 : 0.075;
-      const gammaFluff = 2.2; // нелинейность порогового вскрытия ("эффект попкорна")
+      const kFluff = species === 'angustifolia' ? 0.070 : 0.110;
+      const gammaFluff = 2.1;
 
       let S = 1.0;
       let F = 1.0;
-      let W = 0.10;
+      let W = 0.05; // в середине августа початок ещё свежий, начальное выветривание минимально
       let rhTissue = 85.0;
 
       const tau = 1.5;
@@ -1125,15 +1152,21 @@ html_content = f"""<!DOCTYPE html>
 
         const dryingRate = Math.max(0.0, rhPrev - rhTissue);
 
+        // Б. Накопление выветривания и осеннего старения тканей W
         let freezeThaw = 0.0;
         if (prevTemp !== null) {{
           if ((tCur < 0.0 && prevTemp >= 0.0) || (tCur >= 0.0 && prevTemp < 0.0)) {{
-            freezeThaw = 0.015;
+            freezeThaw = 0.018;
           }}
         }}
         prevTemp = tCur;
+        // В тёплую погоду (T >= 11 °C) ткани стареют медленно; при осеннем похолодании — ускоренно
+        const ageRate = tCur < 11.0 ? 0.00035 : 0.00005;
+        W = Math.min(1.0, W + freezeThaw + ageRate);
 
-        W = Math.min(1.0, W + freezeThaw + 0.00012);
+        // Сигмоидный фактор физиологического созревания/охрупчивания початка M(W) ∈ [0..1]
+        // Блокирует вскрытие в августе-сентябре (W < 0.15) и открывает его в октябре (W > 0.22)
+        const M = 1.0 / (1.0 + Math.exp(-16.0 * (W - 0.22)));
 
         const rhCrit = rhCritBase + 22.0 * W;
         let H = 0.0;
@@ -1149,15 +1182,15 @@ html_content = f"""<!DOCTYPE html>
           S -= dS;
         }}
 
-        // Г2. Нелинейное пороговое распушение початков dF ("эффект попкорна")
-        const rhFluffCrit = rhFluffBase + 14.0 * W;
+        // Г2. Нелинейное пороговое распушение початков dF
+        const rhFluffCrit = rhFluffBase + 16.0 * W;
         let dF = 0.0;
         if (rhTissue < rhFluffCrit && F > 0.0) {{
-          const xDry = Math.min(1.5, (rhFluffCrit - rhTissue) / 22.0);
+          const xDry = Math.min(1.5, (rhFluffCrit - rhTissue) / 20.0);
           const H_fluff = Math.pow(xDry, gammaFluff);
           const dryBoost = 1.0 + 0.08 * dryingRate;
 
-          dF = kFluff * (0.75 + 0.25 * W) * H_fluff * dryBoost * F;
+          dF = kFluff * M * H_fluff * dryBoost * F;
           dF = Math.min(F, dF);
           F -= dF;
         }}
